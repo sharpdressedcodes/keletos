@@ -1,0 +1,66 @@
+.form {
+
+    &-fields {
+        margin-bottom: $default-vertical-form-fields-margin;
+    }
+
+    &-field {
+
+        &:not(:last-child) {
+            margin-bottom: $default-vertical-form-field-margin;
+        }
+
+        &--label {
+            color: $color-primary;
+            background-color: transparent;
+            display: block;
+            font-weight: $font-style-roboto-medium;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        &--value {
+            color: $color-primary;
+            background-color: transparent;
+            display: block;
+            height: 40px;
+            width: 100%;
+            border-top: none;
+            border-left: none;
+            border-right: none;
+            border-bottom: border-style($color-form-input-bottom-border);
+            letter-spacing: 0.1em;
+            padding: 0;
+            transition: border-bottom-color 0.5s ease;
+
+            &:focus {
+                border-bottom-color: $color-primary;
+            }
+
+            &:valid {
+                border-bottom-color: $color-form-field-valid;
+            }
+
+            @include breakpoint(medium up) {
+                display: inline-block;
+            }
+        }
+
+        &.required {
+            .form-field--label:after {
+                color: $color-form-field-required-hint;
+                content: '*';
+                margin-left: 7px;
+            }
+        }
+    }
+
+    &-buttons {
+        display: flex;
+        justify-content: center;
+    }
+
+    &-submit {
+
+    }
+}

@@ -1,0 +1,106 @@
+*,
+*:before,
+*:after {
+    box-sizing: border-box;
+}
+
+body {
+    font: 400 1em/1.5em $font-family-roboto;
+    color: $color-primary;
+}
+
+a,
+a:hover,
+a:visited,
+a:focus {
+    text-decoration: none;
+}
+
+a {
+    color: $color-primary;
+}
+
+img {
+    height: auto;
+    width: 100%;
+}
+
+img,
+a,
+.hover {
+    opacity: 1;
+    transition: opacity $default-hover-speed ease-in-out;
+}
+
+a:hover,
+a:focus {
+    color: initial;
+}
+
+img:hover,
+img:focus,
+input[type=submit]:hover,
+input[type=submit]:focus,
+input[type=reset]:hover,
+input[type=reset]:focus,
+.hover:hover,
+.hover:focus {
+    opacity: $default-hover-opacity;
+    transition: opacity $default-hover-speed ease-in-out;
+}
+
+input[type=color],
+input[type=date],
+input[type=email],
+input[type=file],
+input[type=month],
+input[type=number],
+input[type=password],
+input[type=range],
+input[type=radio],
+input[type=search],
+input[type=tel],
+input[type=text],
+input[type=time],
+input[type=url],
+input[type=week],
+input[type=checkbox],
+select {
+    margin: 0;
+    padding: 0;
+    outline: none;
+}
+
+input[type=checkbox],
+input[type=radio] {
+    cursor: pointer;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-style: normal;
+    font-weight: $font-style-roboto-bold;
+    letter-spacing: 0.015em;
+}
+
+.hidden {
+    display: none;
+}
+
+.button {
+    font-weight: $font-style-roboto-bold;
+    letter-spacing: 0.1em;
+    margin-bottom: 0;
+    padding: 6px 25px;
+    cursor: pointer;
+}
+
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}

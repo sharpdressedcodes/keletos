@@ -1,0 +1,9 @@
+.idea
+.env
+shippable
+vendor
+!**/Config
+**/Config/*.php
+!**/Config/*.default.php
+!**/Widget/*/Config/*.php
+!**/framework/Config/*.php

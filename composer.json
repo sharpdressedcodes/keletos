@@ -1,0 +1,63 @@
+{
+    "name": "sharpdressedcodes/keletos",
+    "description": "Minimalist PHP Framework",
+    "homepage": "https://github.com/sharpdressedcodes/keletos",
+    "license": "proprietary",
+    "type": "phpcodesniffer-standard",
+    "authors": [
+        {
+            "name": "Greg Kappatos",
+            "role": "Developer"
+        }
+    ],
+    "config": {
+        "disable-tls": false,
+        "secure-http": true,
+        "preferred-install": "dist"
+    },
+    "autoload": {
+        "psr-4": {
+            "Keletos\\": "src/"
+        }
+    },
+    "scripts": {
+        "lint:php": "bash -c \"php ./bin/phpcbf.php -s -p --runtime-set colors 1 --runtime-set show_progress 1 --parallel=20 --standard=./.phpcs.xml --extensions=php,lib,inc ./src/public/index.php ./src/app ./tests/acceptance ./tests/functional ./tests/webdriver ./tests/unit\"",
+        "test:unit": "codecept build && codecept run --html unit-report.html --coverage-html unit-coverage --no-interaction -vvv unit",
+        "test:acceptance": "codecept build && codecept run --html acceptance-report.html --coverage-html acceptance-coverage --no-interaction -vvv acceptance",
+        "test:webdriver": "codecept build && codecept run --html webdriver-report.html --coverage-html webdriver-coverage --no-interaction -vvv webdriver",
+        "test:functional": "codecept build && codecept run --html functional-report.html --coverage-html functional-coverage --no-interaction -vvv functional",
+        "test:ci": "./src/vendor/bin/codecept build && ./src/vendor/bin/codecept run --coverage-text --no-interaction -vvv webdriver"
+    },
+    "require": {
+        "php": "^7.2",
+        "higidi/composer-phpcodesniffer-standards-plugin": "@dev",
+        "symfony/routing": "^4.3",
+        "symfony/http-foundation": "^4.3"
+    },
+    "require-dev": {
+        "squizlabs/php_codesniffer": "~3.4",
+        "dealerdirect/phpcodesniffer-composer-installer": "~0.5",
+        "codeception/c3": "^2.4",
+        "codeception/codeception": "^3.1"
+    },
+    "repositories": {
+        "phpcodesniffer-plugin": {
+            "type": "vcs",
+            "url": "https://github.com/higidi/composer-phpcodesniffer-standards-plugin",
+            "options": {
+                "ssl": {
+                    "verify_peer": true
+                }
+            }
+        },
+        "packagist": {
+            "type": "composer",
+            "url": "https://packagist.org",
+            "options": {
+              "ssl": {
+                "verify_peer": true
+              }
+            }
+        }
+    }
+}

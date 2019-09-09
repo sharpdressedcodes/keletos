@@ -1,0 +1,19 @@
+actor: WebdriverTester
+modules:
+    enabled:
+        - Asserts
+        - \Helper\Webdriver
+        - WebDriver:
+            url: https://nginx:3443
+            host: 'selenium'
+            browser: 'chrome'
+            #browser: 'firefox'
+            #browser: 'phantomjs'
+            port: 4444
+            restart: true
+            wait: 2
+            capabilities:
+                # https://sites.google.com/a/chromium.org/chromedriver/capabilities
+                "goog:chromeOptions": # additional chrome options
+                    - '--headless'
+                    - '--whitelisted-ips'

@@ -1,0 +1,18 @@
+// Ubuntu Mono
+//@import url('https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700&display=swap'); // sass-lint:disable-line no-url-protocols
+@import '../fonts/ubuntu-mono';
+
+$font-family-ubuntu-mono: 'Ubuntu Mono', monospace;
+$font-style-ubuntu-mono-regular: 400;
+$font-style-ubuntu-mono-bold: 700;
+
+// Roboto
+//@import url('https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,900&display=swap'); // sass-lint:disable-line no-url-protocols
+@import '../fonts/roboto';
+
+$font-family-roboto: 'Roboto', monospace;
+$font-style-roboto-light: 300;
+$font-style-roboto-regular: 400;
+$font-style-roboto-medium: 500;
+$font-style-roboto-bold: 700;
+$font-style-roboto-black: 900;

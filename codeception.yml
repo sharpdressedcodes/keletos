@@ -1,0 +1,41 @@
+paths:
+    tests: tests
+    output: tests/_output
+    data: tests/_data
+    support: tests/_support
+    envs: tests/_envs
+actor_suffix: Tester
+extensions:
+    enabled:
+        - Codeception\Extension\RunFailed
+        - Codeception\Extension\DotReporter
+        - Codeception\Extension\Recorder
+    config:
+        Codeception\Extension\Recorder:
+            delete_successful: true
+            module: WebDriver
+
+settings:
+    #bootstrap: ../../src/vendor/autoload.php
+    lint: false
+    colors: true
+    # Generate XML JUnit report using strict schema
+    # Avoid putting additional report fields like steps or scenario names to it
+    # Required for XML reports on Jenkins CI
+    strict_xml: true
+
+coverage:
+    enabled: true
+    remote: false
+    include:
+        #- /src/public/index.php
+        #- /src/app/*.php
+        - /src/*.php
+    exclude:
+        - vendor/*
+    remote_context_options:
+        ssl:
+            #cafile: ...
+            verify_peer: false
+            verify_peer_name: false
+

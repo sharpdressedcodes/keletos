@@ -1,0 +1,3 @@
+@function border-style($color, $width: $default-border-width, $style: $default-border-style) {
+    @return unquote('#{$width} #{$style} #{$color}');
+}
