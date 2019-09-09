@@ -3,7 +3,6 @@
     "description": "Minimalist PHP Framework",
     "homepage": "https://github.com/sharpdressedcodes/keletos",
     "license": "proprietary",
-    "type": "phpcodesniffer-standard",
     "authors": [
         {
             "name": "Greg Kappatos",
