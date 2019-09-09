@@ -1,5 +1,5 @@
 import 'jest';
-import Ajax from '../../../../src/framework/Resources/js/components/ajax';
+import Ajax from '../../../../src/Resources/js/components/ajax';
 
 const mockData = { test: 'test' };
 

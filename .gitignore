@@ -6,4 +6,3 @@ vendor
 **/Config/*.php
 !**/Config/*.default.php
 !**/Widget/*/Config/*.php
-!**/framework/Config/*.php

@@ -8,7 +8,7 @@ use \Keletos\Utility\MimeTypes;
 
 abstract class Controller extends \Keletos\Component\Component {
 
-	const FRAMEWORK_NAME = 'Sharp Dressed Codes Framework';
+	const FRAMEWORK_NAME = 'Keletos Framework';
 	const DEFAULT_CSRF_NAME = 'token';
 
 	const PAGE_HEAD_BEGIN_1 = 0;
@@ -54,7 +54,7 @@ abstract class Controller extends \Keletos\Component\Component {
 		$this->addConfig('dataPath', $params['basePath'] . 'app' . $ds . 'Data' . $ds);
 		$this->addConfig('frameworkPath', $params['frameworkPath']);
 		$this->addConfig('frameworkDataPath', $params['frameworkPath'] . 'Data' . $ds);
-		$this->addConfig('frameworkSkeletonPath', $params['frameworkPath'] . 'Component' . $ds . 'Generator' . $ds . 'Skeletons' . $ds);
+		//$this->addConfig('frameworkSkeletonPath', $params['frameworkPath'] . 'Component' . $ds . 'Generator' . $ds . 'Skeletons' . $ds);
 
 		$widgets = \Keletos\Utility\FileSystem::getFiles($params['frameworkPath'] . 'Widget', true);
 		$configPaths = array();
