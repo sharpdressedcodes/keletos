@@ -29,7 +29,7 @@ coverage:
     remote: false
     include:
         #- /src/public/index.php
-        #- /src/app/*.php
+        #- /src/application/*.php
         - /src/*.php
     exclude:
         - vendor/*

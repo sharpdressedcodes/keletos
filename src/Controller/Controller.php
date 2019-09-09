@@ -50,8 +50,8 @@ abstract class Controller extends \Keletos\Component\Component {
 		$ds = DIRECTORY_SEPARATOR;
 
 		$this->addConfig('basePath', $params['basePath']);
-		$this->addConfig('appPath', $params['basePath'] . 'app' . $ds);
-		$this->addConfig('dataPath', $params['basePath'] . 'app' . $ds . 'Data' . $ds);
+		$this->addConfig('appPath', $params['basePath'] . 'application' . $ds);
+		$this->addConfig('dataPath', $params['basePath'] . 'application' . $ds . 'Data' . $ds);
 		$this->addConfig('frameworkPath', $params['frameworkPath']);
 		$this->addConfig('frameworkDataPath', $params['frameworkPath'] . 'Data' . $ds);
 		//$this->addConfig('frameworkSkeletonPath', $params['frameworkPath'] . 'Component' . $ds . 'Generator' . $ds . 'Skeletons' . $ds);
