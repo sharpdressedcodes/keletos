@@ -2,7 +2,7 @@
 
 namespace Tests\Unit\Framework\Component\Api\Google;
 
-require_once __DIR__ . '/../../../../../../src/framework/autoload.php';
+require_once __DIR__ . '/../../../../../../src/vendor/autoload.php';
 
 use \Codeception\Util\Stub;
 use \Keletos\Component\Api\Google\Search;

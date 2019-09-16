@@ -3,7 +3,7 @@
     "description": "Minimalist PHP Framework",
     "homepage": "https://github.com/sharpdressedcodes/keletos",
     "license": "proprietary",
-    "type": "phpcodesniffer-standard",
+    "type": "library",
     "authors": [
         {
             "name": "Greg Kappatos",
@@ -20,8 +20,11 @@
             "Keletos\\": "src/"
         }
     },
+    "bin": [
+        "bin/keletos"
+    ],
     "scripts": {
-        "lint:php": "bash -c \"php ./bin/phpcbf.php -s -p --runtime-set colors 1 --runtime-set show_progress 1 --parallel=20 --standard=./.phpcs.xml --extensions=php,lib,inc ./src/public/index.php ./src/app ./tests/acceptance ./tests/functional ./tests/webdriver ./tests/unit\"",
+        "lint:php": "bash -c \"php ./bin/phpcbf.php -s -p --runtime-set colors 1 --runtime-set show_progress 1 --parallel=20 --standard=./.phpcs.xml --extensions=php,lib,inc ./src/public/index.php ./src/application ./tests/acceptance ./tests/functional ./tests/webdriver ./tests/unit\"",
         "test:unit": "codecept build && codecept run --html unit-report.html --coverage-html unit-coverage --no-interaction -vvv unit",
         "test:acceptance": "codecept build && codecept run --html acceptance-report.html --coverage-html acceptance-coverage --no-interaction -vvv acceptance",
         "test:webdriver": "codecept build && codecept run --html webdriver-report.html --coverage-html webdriver-coverage --no-interaction -vvv webdriver",

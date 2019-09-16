@@ -8,13 +8,12 @@ class PluginManager extends Component {
 	protected $_controller;
 	protected $_config;
 
-	public function __construct($controller){
+	public function __construct($config){
 
 		parent::__construct();
 
-		$this->_plugins = array();
-		$this->_controller = $controller;
-		$this->_config = $controller->getConfig();
+		$this->_plugins = [];
+		$this->_config = $config;
 
 	}
 

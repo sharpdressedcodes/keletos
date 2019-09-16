@@ -8,10 +8,8 @@ class Widget extends \Keletos\Widget\Widget {
 
     public function __construct(array $params = array()){
 
-        $config = $params['controller']->getConfig();
-
         $params['dataPathName'] = 'google-search-api';
-        $params['path'] = $config['dataPath'] . $params['dataPathName'] . DIRECTORY_SEPARATOR;
+        $params['path'] = $this->_config['dataPath'] . $params['dataPathName'] . DIRECTORY_SEPARATOR;
 //
 //        $task->addObserver($this, array(
 //            'onAfterRun',

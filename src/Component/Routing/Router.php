@@ -2,20 +2,29 @@
 
 namespace Keletos\Component\Routing;
 
-use Symfony\Component\Routing\Route;
-use Keletos\Controller\Controller;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\RequestContext;
-use Symfony\Component\Routing\RouteCollection;
 use Keletos\Component\Component;
+use Keletos\Component\Rendering\IRenderer;
+use Keletos\Controller\Controller;
+use Keletos\Utility\GString;
 use Keletos\Utility\MimeTypes;
+use Symfony\Component\Routing\Route;
+use Symfony\Component\Routing\RouteCollection;
 
 class Router extends Component {
 
-    /**
-     * @var RequestContext
-     */
-    protected $context = null;
+    // https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods
+    const HTTP_VERBS = [
+        'GET',
+        'HEAD',
+        'POST',
+        'PUT',
+        'DELETE',
+        'CONNECT',
+        'OPTIONS',
+        'TRACE',
+        'PATCH',
+    ];
+
     /**
      * @var Request
      */
@@ -23,51 +32,156 @@ class Router extends Component {
     protected $basePath = null;
     protected $frameworkPath = null;
     /**
+     * @var IRenderer
+     */
+    protected $renderer = null;
+    /**
      * @var RouteCollection
      */
-    protected $collection = null;
+    protected static $collection = null;
 
-    public function __construct(string $routesPath, string $basePath, string $frameworkPath) {
+    public function __construct(array $routes, IRenderer $renderer, string $basePath) {
         parent::__construct();
 
         set_error_handler([$this, 'onUnhandledError']);
         set_exception_handler([$this, 'onUnhandledException']);
 
-        $context = new RequestContext();
-        $request = Request::createFromGlobals();
-        $context->fromRequest($request);
-
-        $this->context = $context;
-        $this->request = $request;
+        $this->request = new Request();
         $this->basePath = $basePath;
-        $this->frameworkPath = $frameworkPath;
-        $this->collection = include $routesPath;
+        $this->frameworkPath = dirname(dirname(__DIR__));
+        $this->renderer = $renderer;
+
+        // Load routes, this should set self::$collection if there are valid routes
+        foreach ($routes as $route) {
+            require_once "{$basePath}/application/Routes/{$route}.php";
+        }
     }
 
-    public function handleRequest() {
+    public static function getRoutes() : RouteCollection {
+        return self::$collection;
+    }
+
+    public function getRequest() : Request {
+        return $this->request;
+    }
+
+    public function handleRequest() : bool {
 
         $result = false;
+        $col = self::$collection;
 
-        foreach ($this->collection->getIterator() as $route) {
+        foreach (self::$collection->getIterator() as $route) {
 
-            // TODO: add parameter matching
-            if ($route->getPath() === $this->context->getPathInfo()) {
+            if ($result) {
+                break;
+            }
+
+            $path = trim($this->request->getPathInfo(), '/ '); // /test/9
+            $routePath = trim($route->getPath(), '/ ');
+            $requirements = $route->getRequirements(); // [ 'id' => \d+ ]
+            $hasRequirements = !empty($requirements);
+            $hasMetRequirements = [];
+            $args = [];
+
+            if ($routePath === $path) {
                 $result = $this->loadRoute($route);
                 break;
             }
-        }
 
-        $catchAll = $this->collection->get('catch-all');
+            //if ($hasRequirements) {
 
-        if (!$result && $catchAll) {
-            $result = $this->loadRoute($catchAll);
+            $currentPaths = explode('/', $path);
+            $routePaths = explode('/', $routePath);
+            $currentPathsLen = count($currentPaths);
+            $routePathsLen = count($routePaths);
+
+            //for ($i = 0; $i < $currentPathsLen; $i++) {
+            for ($i = 0; $i < $routePathsLen; $i++) {
+
+                if ($i > $currentPathsLen - 1) {
+
+                }
+
+                if ($i < $currentPathsLen && ($routePaths[$i] === '*' || $currentPaths[$i] === $routePaths[$i])) {
+
+                    $hasMetRequirements[] = true;
+                    $hasMetAllRequirements = array_product($hasMetRequirements);
+
+                    if ($i < $routePathsLen - 1) {
+                        continue;
+                    }
+
+                    $result = $this->loadRoute($route, $args);
+                    break;
+
+                } elseif ($i === 0 && $currentPaths[$i] !== $routePaths[$i]) {
+
+                    break;
+
+                } elseif (/*$i > 0 && */preg_match('/\{(.*?)\}/', $routePaths[$i], $matches)) {
+
+                    $match = $matches[1];
+                    $requirement = isset($requirements[$match]) ? $requirements[$match] : null;
+
+                    $closure = $route->getDefault('_controller');
+                    $reflection = new \ReflectionFunction($closure);
+                    $arguments  = $reflection->getParameters();
+                    $requiredParameterCount = $reflection->getNumberOfRequiredParameters();
+                    $parameterIndex = -1;
+
+                    for ($j = 0; $j < count($arguments); $j++) {
+                        if ($arguments[$j]->getName() === $match) {
+                            $parameterIndex = $j;
+                            break;
+                        }
+                    }
+
+                    $isOptional = $parameterIndex + 1 > $requiredParameterCount;
+
+                    if (!$isOptional && $i > $currentPathsLen - 1) {
+                        throw new \Exception("Required parameter '$match' is missing from URL");
+                    }
+
+                    $rx = $requirement;
+                    if ($rx) {
+                        if (GString::startsWith($rx, '/')) {
+                            $rx = substr($rx, 1);
+                        }
+                        if (GString::endsWith($rx, '/')) {
+                            $rx = substr($rx, 0, -1);
+                        }
+                    }
+                    $matched = $requirement ? preg_match("/$rx/", $currentPaths[$i]) : 1;
+
+                    //if ($isOptional || ($requirement && $matched)) {
+
+                    $hasMetRequirements[] = $isOptional || $matched === 1;
+                    $hasMetAllRequirements = array_product($hasMetRequirements);
+
+                    if ($matched) {
+                        $args[$match] = $currentPaths[$i];
+                    } elseif (!$isOptional) {
+                        throw new \Exception("Required parameter '$match' is missing or malformed.");
+                    }
+                    //$args[$match] = $currentPaths[$i];
+
+                    if ($i < $routePathsLen - 1 /*|| !$hasMetAllRequirements*/) {
+                        continue;
+                    }
+
+                    $result = $this->loadRoute($route, $args);
+                    break;
+                    //}
+                }
+            }
+            //}
         }
 
         return $result;
 
     }
 
-    protected function loadRoute(Route $route) {
+    protected function loadRoute(Route $route, array $args = []) : bool {
 
         $controller = $route->getDefault('_controller');
         $method = 'index'; // fallback
@@ -78,7 +192,7 @@ class Router extends Component {
             $method = $controller[1];
         }
 
-        if (!class_exists($className)) {
+        if ((!$controller instanceof \Closure) && (is_string($className) && !class_exists($className))) {
             return false;
         }
 
@@ -88,20 +202,30 @@ class Router extends Component {
             'request' => $this->request,
             'method' => $method,
             'route' => $route,
-            'context' => $this->context,
             'router' => $this,
+            'renderer' => $this->renderer,
         ];
 
-        /**
-         * @var $class Controller
-         */
-        $class = new $className($params);
+        if ($controller instanceof \Closure) {
 
-        if (!method_exists($class, $method) || !is_callable(array($class, $method))) {
-            return false;
+            if (!empty($args)) {
+                call_user_func_array($controller, $args);
+            } else {
+                $controller();
+            }
+
+        } else {
+
+            $reflected = new \ReflectionClass($className);
+
+            if (!$reflected->hasMethod($method)) {
+                return false;
+            }
+
+            $class = new $className($params);
+            $class->run($params);
+
         }
-
-        $class->run($params);
 
         return true;
 
@@ -136,10 +260,10 @@ class Router extends Component {
                 $message = "Warning occurred on line $errLine in file $errFile<br>\n[$errNo] $errStr<br>\n";
 
                 //if ($this->_config['debug']) {
-                    //throw new \ErrorException($message,0, $errNo, $errFile, $errLine);
+                //throw new \ErrorException($message,0, $errNo, $errFile, $errLine);
                 self::sendResponse($message, true);
                 //} else {
-                    //echo $message;
+                //echo $message;
                 //}
                 break;
 
@@ -148,10 +272,10 @@ class Router extends Component {
                 $message = "Notice occurred on line $errLine in file $errFile<br>\n[$errNo] $errStr<br>\n";
 
                 //if ($this->_config['debug']) {
-                    //throw new \ErrorException($message,0, $errNo, $errFile, $errLine);
+                //throw new \ErrorException($message,0, $errNo, $errFile, $errLine);
                 self::sendResponse($message, true);
                 //} else {
-                    //echo $message;
+                //echo $message;
                 //}
                 break;
 
@@ -160,16 +284,88 @@ class Router extends Component {
                 $message = "Unknown error occurred on line $errLine in file $errFile<br>\n[$errNo] $errStr<br>\n";
 
                 //if ($this->_config['debug']) {
-                    //throw new \ErrorException($message,0, $errNo, $errFile, $errLine);
+                //throw new \ErrorException($message,0, $errNo, $errFile, $errLine);
                 self::sendResponse($message, true);
                 //} else {
-                    //echo $message;
+                //echo $message;
                 //}
                 break;
         }
 
         // Don't execute PHP internal error handler
         return true;
+    }
+
+    protected static function addRoute(Route $route, array $args = []) : void {
+
+        if (isset($args['defaults'])) {
+            foreach ($args['defaults'] as $key => $value) {
+                $route->setDefault($key, $value);
+            }
+        }
+
+        if (isset($args['requirements'])) {
+            foreach ($args['requirements'] as $key => $value) {
+                $route->setRequirement($key, $value);
+            }
+        }
+
+        if (!self::$collection) {
+            self::$collection = new RouteCollection();
+        }
+
+        $name = isset($args['name']) ? $args['name'] : $route->getPath();
+        self::$collection->add($name, $route);
+
+    }
+
+    public static function any(string $path, $action, array $args = []) : Route {
+
+        $route = new Route($path);
+
+        $route->setMethods(self::HTTP_VERBS);
+        $route->setDefault('_controller', $action);
+
+        self::addRoute($route, $args);
+
+        return $route;
+
+    }
+
+    public static function get(string $path, $action, array $args = []) : Route {
+
+        $route = new Route($path);
+        $route->setMethods(['GET']);
+        $route->setDefault('_controller', $action);
+
+        self::addRoute($route, $args);
+
+        return $route;
+
+    }
+
+    public static function post(string $path, $action, array $args = []) : Route {
+
+        $route = new Route($path);
+        $route->setMethods(['POST']);
+        $route->setDefault('_controller', $action);
+
+        self::addRoute($route, $args);
+
+        return $route;
+
+    }
+
+    public static function match(array $methods, string $path, $action, array $args = []) : Route {
+
+        $route = new Route($path);
+        $route->setMethods($methods);
+        $route->setDefault('_controller', $action);
+
+        self::addRoute($route, $args);
+
+        return $route;
+
     }
 
     public static function sendResponse($data, $isError = false){
